@@ -3,9 +3,6 @@
 #include <iostream>
 
 void test_const() {
-	linalg::Matrix m1{ 2,2 };
-	//std::cout << m.rows() << m.columns();
-	linalg::Matrix m2 = linalg::Matrix{1,2,3,4,5};
-	std::cout << m2;
-
+	linalg::Matrix m1 = { {100000000.1, 4.2},{4.1, 234.1}, {34.1, 3.1} };
+	std::cout << m1;
 }
