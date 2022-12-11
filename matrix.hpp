@@ -1,26 +1,43 @@
 #pragma once
 
-linalg::Matrix::Matrix(size_t rows, size_t columns) {
-	m_ptr = new double[rows * columns];
-	for (size_t i = 0; i < rows * columns; ++i) {
-		m_ptr[i] = double();
+#include <utility>
+
+template<typename T>
+linalg::Matrix<T>::Matrix(size_t rows, size_t columns) {
+	if (!rows || !columns) return;
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * rows * columns));
+	T* cur_ptr = tmp_ptr;
+	try {
+		while (cur_ptr != tmp_ptr + rows * columns) {
+			new(cur_ptr) T();
+			++cur_ptr;
+		}
 	}
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	m_ptr = tmp_ptr;
 	m_rows = rows;
 	m_columns = columns;
 	m_capacity = rows * columns;
 }
 
-linalg::Matrix::Matrix(const Matrix& mat) {
-	m_ptr = new double[mat.m_rows * mat.m_columns];
-	for (size_t i = 0; i < mat.m_rows * mat.m_columns; ++i) {
-		m_ptr[i] = mat.m_ptr[i];
-	}
-	m_rows = mat.m_rows;
-	m_columns = mat.m_columns;
-	m_capacity = mat.m_rows * mat.m_columns;
+template <typename T>
+linalg::Matrix<T>::Matrix(const Matrix& mat) {
+	copy_constructor(mat);
 }
 
-linalg::Matrix::Matrix(Matrix&& mat) noexcept
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>::Matrix(const Matrix<T2>& mat) {
+	copy_constructor(mat);
+}
+
+template <typename T>
+linalg::Matrix<T>::Matrix(Matrix&& mat) noexcept
 	: m_ptr(mat.m_ptr), m_rows(mat.m_rows), 
 	m_columns(mat.m_columns), m_capacity(mat.m_capacity)
 {
@@ -28,33 +45,54 @@ linalg::Matrix::Matrix(Matrix&& mat) noexcept
 	mat.m_rows = mat.m_columns = 0;
 }
 
-linalg::Matrix::Matrix(std::initializer_list<std::initializer_list<double>> list) {
-	m_ptr = new double[(*list.begin()).size() * list.size()];
-	size_t i = 0;
-	for (std::initializer_list<double> row : list) {
-		for (double el : row) {
-			m_ptr[i] = el;
-			++i;
+template <typename T>
+linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> list) {
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size() * (*list.begin()).size()));
+	T* cur_ptr = tmp_ptr;
+	try {
+		for (std::initializer_list<T> row : list) {
+			using list_it = typename std::initializer_list<T>::iterator;
+			for (list_it it = row.begin(); it != row.end(); ++it, ++cur_ptr) {
+				new(cur_ptr) T(*it);
+			}
 		}
 	}
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	m_ptr = tmp_ptr;
 	m_rows = list.size();
 	m_columns = (*list.begin()).size();
 	m_capacity = list.size() * (*list.begin()).size();
 }
 
-linalg::Matrix::Matrix(std::initializer_list<double> list) {
-	m_ptr = new double[list.size()];
-	size_t i = 0;
-	for (double el : list) {
-		m_ptr[i] = el;
-		++i;
+template <typename T>
+linalg::Matrix<T>::Matrix(std::initializer_list<T> list) {
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size()));
+	T* cur_ptr = tmp_ptr;
+	try {
+		using list_it = typename std::initializer_list<T>::iterator;
+		for (list_it it = list.begin(); it != list.end(); ++it, ++cur_ptr) {
+			new(cur_ptr) T(*it);
+		}
 	}
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	m_ptr = tmp_ptr;
 	m_rows = list.size();
 	m_columns = 1;
 	m_capacity = list.size();
 }
 
-void linalg::Matrix::reshape(size_t rows, size_t columns) {
+template <typename T>
+void linalg::Matrix<T>::reshape(size_t rows, size_t columns) {
 	if (rows * columns == m_rows * m_columns) {
 		m_rows = rows;
 		m_columns = columns;
@@ -64,47 +102,75 @@ void linalg::Matrix::reshape(size_t rows, size_t columns) {
 	}
 }
 
-void linalg::Matrix::reserve(size_t capacity) {
+template <typename T>
+void linalg::Matrix<T>::reserve(size_t capacity) {
 	if (m_capacity >= capacity) return;
 
-	double* tmp_ptr = new double[capacity];
-	for (size_t i = 0; i < m_rows * m_columns; ++i) {
-		tmp_ptr[i] = m_ptr[i];
+
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * capacity));
+	T* cur_ptr = tmp_ptr;
+	try {
+		for (T* ptr = m_ptr; ptr != m_ptr + m_rows * m_columns; ++ptr, ++cur_ptr) {
+			new(cur_ptr) T(*ptr);
+		}
 	}
-	delete[] m_ptr;
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	for (T* ptr = m_ptr; ptr != m_ptr + m_rows * m_columns; ++ptr) {
+		ptr->~T();
+	}
+	delete reinterpret_cast<void*> (m_ptr);
 	m_ptr = tmp_ptr;
 	m_capacity = capacity;
 }
 
-void linalg::Matrix::shrink_to_fit() {
+template <typename T>
+void linalg::Matrix<T>::shrink_to_fit() {
 	if (m_capacity == m_rows * m_columns) return;
 
 	*this = Matrix(*this);
-
-	double* tmp_ptr = new double[m_rows * m_columns];
-	for (size_t i = 0; i < m_rows * m_columns; ++i) {
-		tmp_ptr[i] = m_ptr[i];
-	}
-	m_ptr = tmp_ptr;
-	m_capacity = m_rows * m_columns;
 }
 
-linalg::Matrix& linalg::Matrix::operator=(const Matrix& mat) {
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix<T2>& mat) {
 	if (&mat == this) {
-		return *this;
-	}
-	if (mat.m_rows * mat.m_columns > m_capacity) {
 		return *this = Matrix(mat);
 	}
-	for (size_t i = 0; i < mat.m_rows * mat.m_columns; ++i){
-		m_ptr[i] = mat.m_ptr[i];
+	T* self = m_ptr;
+	T* other = mat.m_ptr;
+	for (; self != m_ptr + std::min(m_rows * m_columns, mat.m_rows * mat.m_columns); ++self, ++other) {
+		*self = *other;
+	}
+	if (m_rows * m_columns < mat.m_rows * mat.m_columns) {
+		try {
+			for (; self != m_ptr + mat.m_rows * mat.m_columns; ++self, ++other) {
+				new(self) T(*other);
+			}
+		}
+		catch (...) {
+			for (T* ptr = m_ptr + m_rows * m_columns; ptr != self; ++ptr) {
+				ptr->~T();
+			}
+			throw;
+		}
+	}
+	else {
+		for (; self != m_ptr + m_rows * m_columns; ++self) {
+			self->~T();
+		}
 	}
 	m_rows = mat.m_rows;
 	m_columns = mat.m_columns;
 	return *this;
 }
 
-linalg::Matrix& linalg::Matrix::operator=(Matrix&& mat) noexcept
+template <typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept
 {
 	if (&mat == this)
 		return *this;
@@ -117,15 +183,49 @@ linalg::Matrix& linalg::Matrix::operator=(Matrix&& mat) noexcept
 	return *this;
 }
 
-double& linalg::Matrix::operator()(int row, int col) {
+template <typename T>
+T& linalg::Matrix<T>::operator()(size_t row, size_t col) {
 	if (col < 0 || col > m_columns - 1 || row < 0 || row > m_rows - 1) {
 		throw;
 	}
 	return m_ptr[row * m_columns + col];
 }
-double linalg::Matrix::operator()(int row, int col) const{
+
+template <typename T>
+const T& linalg::Matrix<T>::operator()(size_t row, size_t col) const{
 	if (col < 0 || col > m_columns - 1 || row < 0 || row > m_rows - 1) {
 		throw;
 	}
 	return m_ptr[row * m_columns + col];
+}
+
+template<typename T>
+void linalg::Matrix<T>::clear() noexcept {
+	for (T* ptr = m_ptr; ptr != m_ptr + m_rows * m_columns; ++ptr)
+		ptr->~T();
+	m_rows = m_columns = 0;
+}
+
+
+template<typename T>
+template<typename T2>
+void linalg::Matrix<T>::copy_constructor(const Matrix<T2>& mat) {
+	if (!mat.m_rows) return;
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * mat.m_rows * mat.m_columns));
+	T* cur_ptr = tmp_ptr;
+	try {
+		for (T2* ptr = mat.m_ptr; ptr != mat.m_ptr + mat.m_rows * mat.m_columns; ++ptr, ++cur_ptr) {
+			new(cur_ptr) T(*ptr);
+		}
+	}
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	m_ptr = tmp_ptr;
+	m_rows = mat.m_rows;
+	m_columns = mat.m_columns;
+	m_capacity = mat.m_rows * mat.m_columns;
 }

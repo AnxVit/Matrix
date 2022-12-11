@@ -1,7 +1,7 @@
 #include "test.h"
 
 int main() {
-	test_const();
+	test_clear();
 
 	return 0;
 }

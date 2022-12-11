@@ -3,7 +3,8 @@
 #include <iomanip>
 #include <sstream>
 
-static size_t compute_width(const linalg::Matrix& mat, bool flag){
+template <typename T>
+static size_t compute_width(const linalg::Matrix<T>& mat, bool flag){
 	std::stringstream s_str;
 	size_t width = 0;
 	std::pair<int, int> length;
@@ -22,7 +23,8 @@ static size_t compute_width(const linalg::Matrix& mat, bool flag){
 	return width;
 }
 
-std::ostream& linalg::operator<<(std::ostream& out, const Matrix& mat) {
+template <typename T>
+std::ostream& linalg::operator<<(std::ostream& out, const Matrix<T>& mat) {
 	size_t width_f = compute_width(mat, true);
 	size_t width_m = compute_width(mat, false);
 	if (mat.empty()) {
