@@ -256,9 +256,6 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix<T2>& mat) {
 
 template<typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix& mat) {
-	if (&mat == this) {
-		return *this;
-	}
 	return operator+=<T>(mat);
 }
 
@@ -277,9 +274,6 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix<T2>& mat) {
 
 template<typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix& mat) {
-	if (&mat == this) {
-		return *this;
-	}
 	return operator-=<T>(mat);
 }
 
@@ -314,6 +308,20 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const Matrix<T2>& mat) {
 
 template<typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const Matrix& mat) {
-	
-	return operator-=<T>(mat);
+	return operator*=<T>(mat);
+}
+
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const T2& val) {
+	T* self = m_ptr;
+	for (; self != m_ptr + m_rows * m_columns; ++self) {
+		*self *= val;
+	}
+	return *this;
+}
+
+template<typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const T& val) {
+	return operator*=<T>(val);
 }

@@ -32,10 +32,10 @@ std::ostream& linalg::operator<<(std::ostream& out, const Matrix<T>& mat) {
 	}
 	else {
 		for (size_t i = 0; i < mat.rows(); ++i) {
-			out << '|';
-			out << ' ' << std::setw(width_f) << mat(i, 0);
+			out <<'|';
+			out << std::setw(width_f) << mat(i, 0);
 			for (size_t j = 1; j < mat.columns(); ++j) {
-				out << ' ' << std::setw(width_f) << mat(i, j);
+				out << ' ' << std::setw(width_m) << mat(i, j);
 			}
 			out << "|\n";
 		}

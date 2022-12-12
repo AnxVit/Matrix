@@ -1,7 +1,7 @@
 #include "test.h"
 
 int main() {
-	test_times();
+	test_conversion();
 
 	return 0;
 }

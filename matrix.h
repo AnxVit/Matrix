@@ -42,6 +42,9 @@ namespace linalg {
 		Matrix& operator*= (const Matrix& mat);
 		template <typename T>
 		Matrix& operator*= (const Matrix<T>& mat);
+		Matrix& operator*= (const T& val);
+		template <typename T>
+		Matrix& operator*= (const T& val);
 	private:
 		T* m_ptr = nullptr;
 		size_t m_rows{0};
@@ -61,6 +64,19 @@ namespace linalg {
 		Matrix<decltype(T1() + T2())> result = mat1;
 		return result -= mat2;
 	}
-
+	template <typename T1, typename T2>
+	auto operator*(const Matrix<T1>& mat1, const Matrix<T2>& mat2) {
+		Matrix<decltype(T1() * T2())> result = mat1;
+		return result *= mat2;
+	}
+	template <typename T1, typename T2>
+	auto operator*(const Matrix<T1>& mat, const T2& val) {
+		Matrix<decltype(T1()* T2())> result = mat;
+		return result *= val;
+	}
+	template <typename T1, typename T2>
+	auto operator*(const T1& val, const Matrix<T2>& mat) {
+		return mat * val;
+	}
 }
 #include "matrix.hpp"
