@@ -19,3 +19,12 @@ void test_equal(){
 	linalg::Matrix<double> m1 = { 10.1, 9.1, 8.1, 7.1};
 	std::cout << m + m1;
 }
+
+void test_times() {
+	linalg::Matrix<int> m = { {1,2,3}, {4,5,6} };
+	linalg::Matrix<double> m1 = { {1.1,2.2},{3.3,4.4},{5.5,6.6} };
+	std::cout << m;
+	std::cout << m1;
+	m *= m1;
+	std::cout << m;
+}

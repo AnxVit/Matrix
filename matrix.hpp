@@ -281,5 +281,39 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix& mat) {
 		return *this;
 	}
 	return operator-=<T>(mat);
+}
 
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const Matrix<T2>& mat) {
+	if (m_columns != mat.m_rows) throw -1;
+	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * m_rows * mat.m_columns));
+	T* cur_ptr = tmp_ptr;
+	try {
+		size_t i = 0;
+		while(i != m_rows * mat.m_columns){
+			decltype(T() * T2()) val = T() * T2();
+			for (size_t j = 0; j < m_columns; ++j) {
+				val += (*this)(i / mat.m_columns, j) * mat(j, i % mat.m_columns);
+			}
+			new(cur_ptr + i) T(val);
+			++i;
+		}
+	}
+	catch (...) {
+		for (T* ptr = tmp_ptr; ptr != cur_ptr; ++ptr)
+			ptr->~T();
+		delete reinterpret_cast<void*>(tmp_ptr);
+		throw;
+	}
+	delete m_ptr;
+	m_ptr = tmp_ptr;
+	m_columns = mat.m_columns;
+	return *this;
+}
 
+template<typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const Matrix& mat) {
+	
+	return operator-=<T>(mat);
+}
