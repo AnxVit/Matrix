@@ -13,3 +13,10 @@ void test_clear() {
 	m.clear();
 	std::cout << m;
 }
+
+void test_equal(){
+	linalg::Matrix<int> m = { 1, 2, 3, 4};
+	linalg::Matrix<double> m1 = { {100000000.1, 4.2},{4.1, 234.1}, {34.1, 3.1} };
+	m = m1;
+	std::cout << m;
+}

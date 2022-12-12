@@ -138,11 +138,11 @@ void linalg::Matrix<T>::shrink_to_fit() {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix<T2>& mat) {
-	if (&mat == this) {
+	if (mat.m_columns * mat.m_rows > m_capacity) {
 		return *this = Matrix(mat);
 	}
 	T* self = m_ptr;
-	T* other = mat.m_ptr;
+	T2* other = mat.m_ptr;
 	for (; self != m_ptr + std::min(m_rows * m_columns, mat.m_rows * mat.m_columns); ++self, ++other) {
 		*self = *other;
 	}
@@ -168,6 +168,15 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix<T2>& mat) {
 	m_columns = mat.m_columns;
 	return *this;
 }
+
+template<typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix& mat) {
+	if (&mat == this) {
+		return *this;
+	}
+	return operator=<T>(mat); //*this = vec;
+}
+
 
 template <typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept
@@ -228,4 +237,16 @@ void linalg::Matrix<T>::copy_constructor(const Matrix<T2>& mat) {
 	m_rows = mat.m_rows;
 	m_columns = mat.m_columns;
 	m_capacity = mat.m_rows * mat.m_columns;
+}
+
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix<T2>& mat) {
+	if (m_rows != mat.mat_rows || m_columns != mat.m_columns) return;
+	T* self = m_ptr;
+	T2* other = mat.m_ptr;
+
+	for (; self != m_ptr + mat.m_rows * mat.m_columns; ++self, ++other) {
+		*self += *other;
+	}
 }

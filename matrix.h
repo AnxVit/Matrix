@@ -25,10 +25,15 @@ namespace linalg {
 		void clear() noexcept;
 
 		Matrix& operator=(const Matrix& mat);
-		template <typename T2> Matrix& operator=(const Matrix<T2>& mat);
+		template <typename T2> 
+		Matrix& operator=(const Matrix<T2>& mat);
+		template <typename T2> friend class Matrix;
 		Matrix& operator=(Matrix&& mat) noexcept;
 		T& operator()(size_t row, size_t col);
 		const T& operator()(size_t row, size_t col) const;
+
+		template <typename T>
+		Matrix& operator+= (const Matrix<T>& mat);
 	private:
 		T* m_ptr = nullptr;
 		size_t m_rows{0};
