@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include "matrix.h"
 
 template<typename T>
 linalg::Matrix<T>::Matrix(size_t rows, size_t columns) {
@@ -174,7 +175,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix& mat) {
 	if (&mat == this) {
 		return *this;
 	}
-	return operator=<T>(mat); //*this = vec;
+	return operator=<T>(mat);
 }
 
 
@@ -207,6 +208,7 @@ const T& linalg::Matrix<T>::operator()(size_t row, size_t col) const{
 	}
 	return m_ptr[row * m_columns + col];
 }
+
 
 template<typename T>
 void linalg::Matrix<T>::clear() noexcept {
@@ -242,11 +244,42 @@ void linalg::Matrix<T>::copy_constructor(const Matrix<T2>& mat) {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix<T2>& mat) {
-	if (m_rows != mat.mat_rows || m_columns != mat.m_columns) return;
+	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw -1;
 	T* self = m_ptr;
 	T2* other = mat.m_ptr;
 
 	for (; self != m_ptr + mat.m_rows * mat.m_columns; ++self, ++other) {
 		*self += *other;
 	}
+	return *this;
 }
+
+template<typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix& mat) {
+	if (&mat == this) {
+		return *this;
+	}
+	return operator+=<T>(mat);
+}
+
+template <typename T>
+template <typename T2>
+linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix<T2>& mat) {
+	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw - 1;
+	T* self = m_ptr;
+	T2* other = mat.m_ptr;
+
+	for (; self != m_ptr + mat.m_rows * mat.m_columns; ++self, ++other) {
+		*self -= *other;
+	}
+	return *this;
+}
+
+template<typename T>
+linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix& mat) {
+	if (&mat == this) {
+		return *this;
+	}
+	return operator-=<T>(mat);
+
+

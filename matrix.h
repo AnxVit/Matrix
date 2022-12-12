@@ -28,12 +28,17 @@ namespace linalg {
 		template <typename T2> 
 		Matrix& operator=(const Matrix<T2>& mat);
 		template <typename T2> friend class Matrix;
+
 		Matrix& operator=(Matrix&& mat) noexcept;
 		T& operator()(size_t row, size_t col);
 		const T& operator()(size_t row, size_t col) const;
 
+		Matrix& operator+= (const Matrix& mat);
 		template <typename T>
 		Matrix& operator+= (const Matrix<T>& mat);
+		Matrix& operator-= (const Matrix& mat);
+		template <typename T>
+		Matrix& operator-= (const Matrix<T>& mat);
 	private:
 		T* m_ptr = nullptr;
 		size_t m_rows{0};
@@ -42,5 +47,12 @@ namespace linalg {
 	private:
 		template <typename T2> void copy_constructor(const Matrix<T2>& mat);
 	};
+
+	template <typename T1, typename T2>
+	auto operator+(const Matrix<T1>& mat1, const Matrix<T2>& mat2) {
+		Matrix<decltype(T1() + T2())> result = mat1;
+		return result += mat2;
+	}
+
 }
 #include "matrix.hpp"
