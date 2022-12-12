@@ -16,7 +16,7 @@ namespace linalg {
 		Matrix(std::initializer_list<std::initializer_list<T2>> list);
 		template <typename T2>
 		Matrix(std::initializer_list<T2> list);
-		//~Matrix() noexcept;
+		~Matrix() noexcept;
 
 		size_t rows() const noexcept { return m_rows; }
 		size_t columns() const noexcept { return m_columns; }

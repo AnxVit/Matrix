@@ -46,6 +46,14 @@ linalg::Matrix<T>::Matrix(Matrix&& mat) noexcept
 	mat.m_rows = mat.m_columns = 0;
 }
 
+template<typename T>
+linalg::Matrix<T>::~Matrix() noexcept {
+	for (T* ptr = m_ptr; ptr != m_ptr + m_rows * m_columns; ++ptr)
+		ptr->~T();
+	delete reinterpret_cast<void*>(m_ptr);
+}
+
+
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T2>> list) {
