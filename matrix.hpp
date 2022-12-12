@@ -57,6 +57,7 @@ linalg::Matrix<T>::~Matrix() noexcept {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T2>> list) {
+	if (!list.size()) return;
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size() * (*list.begin()).size()));
 	T* cur_ptr = tmp_ptr;
 	try {
@@ -82,6 +83,7 @@ linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T2>> list)
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>::Matrix(std::initializer_list<T2> list) {
+	if (!list.size()) return;
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size()));
 	T* cur_ptr = tmp_ptr;
 	try {
@@ -109,14 +111,13 @@ void linalg::Matrix<T>::reshape(size_t rows, size_t columns) {
 		m_columns = columns;
 	}
 	else {
-		throw - 1;
+		throw IncorrectDimensions();
 	}
 }
 
 template <typename T>
 void linalg::Matrix<T>::reserve(size_t capacity) {
 	if (m_capacity >= capacity) return;
-
 
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * capacity));
 	T* cur_ptr = tmp_ptr;
@@ -142,7 +143,6 @@ void linalg::Matrix<T>::reserve(size_t capacity) {
 template <typename T>
 void linalg::Matrix<T>::shrink_to_fit() {
 	if (m_capacity == m_rows * m_columns) return;
-
 	*this = Matrix(*this);
 }
 
@@ -190,8 +190,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix& mat) {
 
 
 template <typename T>
-linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept
-{
+linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept{
 	if (&mat == this)
 		return *this;
 	delete m_ptr;
@@ -206,7 +205,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept
 template <typename T>
 T& linalg::Matrix<T>::operator()(size_t row, size_t col) {
 	if (col < 0 || col > m_columns - 1 || row < 0 || row > m_rows - 1) {
-		throw;
+		throw OutOfRangeException();
 	}
 	return m_ptr[row * m_columns + col];
 }
@@ -214,7 +213,7 @@ T& linalg::Matrix<T>::operator()(size_t row, size_t col) {
 template <typename T>
 const T& linalg::Matrix<T>::operator()(size_t row, size_t col) const{
 	if (col < 0 || col > m_columns - 1 || row < 0 || row > m_rows - 1) {
-		throw;
+		throw OutOfRangeException();
 	}
 	return m_ptr[row * m_columns + col];
 }
@@ -254,7 +253,7 @@ void linalg::Matrix<T>::copy_constructor(const Matrix<T2>& mat) {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix<T2>& mat) {
-	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw -1;
+	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw IncorrectDimensions();
 	T* self = m_ptr;
 	T2* other = mat.m_ptr;
 
@@ -272,7 +271,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator+=(const Matrix& mat) {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix<T2>& mat) {
-	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw - 1;
+	if (m_rows != mat.m_rows || m_columns != mat.m_columns) throw IncorrectDimensions();
 	T* self = m_ptr;
 	T2* other = mat.m_ptr;
 
@@ -290,7 +289,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator-=(const Matrix& mat) {
 template <typename T>
 template <typename T2>
 linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const Matrix<T2>& mat) {
-	if (m_columns != mat.m_rows) throw -1;
+	if (m_columns != mat.m_rows) throw IncorrectDimensions();
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * m_rows * mat.m_columns));
 	T* cur_ptr = tmp_ptr;
 	try {

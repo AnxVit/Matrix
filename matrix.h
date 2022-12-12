@@ -81,5 +81,15 @@ namespace linalg {
 	auto operator*(const T1& val, const Matrix<T2>& mat) {
 		return mat * val;
 	}
+
+	struct Exception: public std::exception {
+		Exception(const char* str) : std::exception(str){}
+	};
+	struct IncorrectDimensions: public Exception {
+		IncorrectDimensions() : Exception("Incorrect dimenssions") {}
+	};
+	struct OutOfRangeException: public Exception {
+		OutOfRangeException() : Exception("Out of range exception") {}
+	};
 }
 #include "matrix.hpp"
