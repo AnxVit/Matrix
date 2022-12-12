@@ -43,6 +43,5 @@ void test_times_number() {
 
 void test_conversion() {
 	linalg::Matrix<double> m1 = { 10.1, 9.1, 8.1, 7.1 };
-	linalg::Matrix<short> m = m1;
-	std::cout << m;
+	std::cout << m1;
 }

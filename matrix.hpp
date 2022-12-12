@@ -47,12 +47,13 @@ linalg::Matrix<T>::Matrix(Matrix&& mat) noexcept
 }
 
 template <typename T>
-linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> list) {
+template <typename T2>
+linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T2>> list) {
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size() * (*list.begin()).size()));
 	T* cur_ptr = tmp_ptr;
 	try {
 		for (std::initializer_list<T> row : list) {
-			using list_it = typename std::initializer_list<T>::iterator;
+			using list_it = typename std::initializer_list<T2>::iterator;
 			for (list_it it = row.begin(); it != row.end(); ++it, ++cur_ptr) {
 				new(cur_ptr) T(*it);
 			}
@@ -71,11 +72,12 @@ linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> list) 
 }
 
 template <typename T>
-linalg::Matrix<T>::Matrix(std::initializer_list<T> list) {
+template <typename T2>
+linalg::Matrix<T>::Matrix(std::initializer_list<T2> list) {
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size()));
 	T* cur_ptr = tmp_ptr;
 	try {
-		using list_it = typename std::initializer_list<T>::iterator;
+		using list_it = typename std::initializer_list<T2>::iterator;
 		for (list_it it = list.begin(); it != list.end(); ++it, ++cur_ptr) {
 			new(cur_ptr) T(*it);
 		}

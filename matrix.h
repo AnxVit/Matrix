@@ -9,10 +9,13 @@ namespace linalg {
 		Matrix() noexcept = default;
 		Matrix(size_t rows, size_t columns = 1);
 		Matrix(const Matrix& mat);
-		template <typename T2> Matrix(const Matrix<T2>& mat);
+		template <typename T2> 
+		Matrix(const Matrix<T2>& mat);
 		Matrix(Matrix&& mat) noexcept;
-		Matrix(std::initializer_list<std::initializer_list<T>> values);
-		Matrix(std::initializer_list<T> list);
+		template <typename T2>
+		Matrix(std::initializer_list<std::initializer_list<T2>> list);
+		template <typename T2>
+		Matrix(std::initializer_list<T2> list);
 		//~Matrix() noexcept;
 
 		size_t rows() const noexcept { return m_rows; }
