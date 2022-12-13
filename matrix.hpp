@@ -39,11 +39,10 @@ linalg::Matrix<T>::Matrix(const Matrix<T2>& mat) {
 
 template <typename T>
 linalg::Matrix<T>::Matrix(Matrix&& mat) noexcept
-	: m_ptr(mat.m_ptr), m_rows(mat.m_rows), 
-	m_columns(mat.m_columns), m_capacity(mat.m_capacity)
 {
-	mat.m_ptr = nullptr;
-	mat.m_rows = mat.m_columns = 0;
+	std::swap(m_ptr, mat.m_ptr);
+	std::swap(m_rows, mat.m_rows);
+	std::swap(m_columns, mat.m_columns);
 }
 
 template<typename T>
@@ -191,14 +190,9 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(const Matrix& mat) {
 
 template <typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept{
-	if (&mat == this)
-		return *this;
-	delete m_ptr;
-
-	m_ptr = mat.m_ptr;
-	mat.m_ptr = nullptr;
-	mat.m_rows = mat.m_columns = 0;
-
+	std::swap(m_ptr, mat.m_ptr);
+	std::swap(m_rows, mat.m_rows);
+	std::swap(m_columns, mat.m_columns);
 	return *this;
 }
 

@@ -1,7 +1,7 @@
 #include "test.h"
 
 int main() {
-	test_conversion();
+	test_reshape();
 
 	return 0;
 }

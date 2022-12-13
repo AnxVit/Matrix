@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <initializer_list>
 
 namespace linalg {
@@ -31,7 +32,6 @@ namespace linalg {
 		template <typename T2> 
 		Matrix& operator=(const Matrix<T2>& mat);
 		template <typename T2> friend class Matrix;
-
 		Matrix& operator=(Matrix&& mat) noexcept;
 		T& operator()(size_t row, size_t col);
 		const T& operator()(size_t row, size_t col) const;

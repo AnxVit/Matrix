@@ -13,3 +13,5 @@ void test_plus();
 void test_times_number();
 
 void test_conversion();
+
+void test_reshape();
