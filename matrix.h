@@ -4,13 +4,16 @@
 #include <initializer_list>
 
 namespace linalg {
+	template <typename T>
+	class Proxy;
+
 	template <typename T = double>
 	class Matrix {
 	public:
 		Matrix() noexcept = default;
 		Matrix(size_t rows, size_t columns = 1);
 		Matrix(const Matrix& mat);
-		template <typename T2> 
+		template <typename T2>
 		Matrix(const Matrix<T2>& mat);
 		Matrix(Matrix&& mat) noexcept;
 		template <typename T2>
@@ -22,14 +25,14 @@ namespace linalg {
 		size_t rows() const noexcept { return m_rows; }
 		size_t columns() const noexcept { return m_columns; }
 		size_t capacity() const noexcept { return m_capacity; }
-		bool empty() const noexcept { return m_rows == 0; }
+		bool empty() const noexcept { return m_rows == 0 ; }
 		void reshape(size_t rows, size_t columns);
 		void reserve(size_t n);
 		void shrink_to_fit();
 		void clear() noexcept;
 
 		Matrix& operator=(const Matrix& mat);
-		template <typename T2> 
+		template <typename T2>
 		Matrix& operator=(const Matrix<T2>& mat);
 		template <typename T2> friend class Matrix;
 		Matrix& operator=(Matrix&& mat) noexcept;
@@ -48,6 +51,9 @@ namespace linalg {
 		Matrix& operator*= (const T& val);
 		template <typename T>
 		Matrix& operator*= (const T& val);
+		
+		const Proxy<T> operator[](size_t r) const;
+		Proxy<T> operator[](size_t r);
 	private:
 		T* m_ptr = nullptr;
 		size_t m_rows{0};
@@ -82,14 +88,35 @@ namespace linalg {
 		return mat * val;
 	}
 
-	struct Exception: public std::exception {
-		Exception(const char* str) : std::exception(str){}
+	struct MatrixException: public std::exception {
+		MatrixException(const char* str) : std::exception(str){}
 	};
-	struct IncorrectDimensions: public Exception {
-		IncorrectDimensions() : Exception("Incorrect dimenssions") {}
+	struct IncorrectDimensions: public MatrixException {
+		IncorrectDimensions() : MatrixException("Incorrect dimenssions") {}
 	};
-	struct OutOfRangeException: public Exception {
-		OutOfRangeException() : Exception("Out of range exception") {}
+	struct OutOfRangeException: public MatrixException {
+		OutOfRangeException() : MatrixException("Out of range exception") {}
+	};
+	
+	template <typename T>
+	class Proxy{
+	public:
+		Proxy(T* mat, size_t columns): m_row(mat), m_size(columns) {}
+		T& operator[](size_t c) {
+			if (c < 0 || c > m_size - 1) {
+				throw OutOfRangeException();
+			}
+			return *(m_row + c);
+		}
+		T operator[](size_t c) const{
+			if (c < 0 || c > m_size - 1) {
+				throw OutOfRangeException();
+			}
+			return *(m_row + c);
+		}
+	private:
+		T* m_row;
+		size_t m_size;
 	};
 }
 #include "matrix.hpp"

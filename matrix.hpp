@@ -103,9 +103,12 @@ linalg::Matrix<T>::Matrix(std::initializer_list<T2> list) {
 	m_capacity = list.size();
 }
 
+
+
 template <typename T>
 void linalg::Matrix<T>::reshape(size_t rows, size_t columns) {
 	if (rows * columns == m_rows * m_columns) {
+		if (!rows || !columns) return;
 		m_rows = rows;
 		m_columns = columns;
 	}
@@ -327,4 +330,20 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const T2& val) {
 template<typename T>
 linalg::Matrix<T>& linalg::Matrix<T>::operator*=(const T& val) {
 	return operator*=<T>(val);
+}
+
+template <typename T>
+const linalg::Proxy<T> linalg::Matrix<T>::operator[](size_t r) const {
+	if (r < 0 || r > m_rows - 1) {
+		throw OutOfRangeException();
+	}
+	return Proxy(m_ptr + r * (*this).m_columns, (*this).m_columns);
+}
+
+template <typename T>
+linalg::Proxy<T> linalg::Matrix<T>::operator[](size_t r) {
+	if (r < 0 || r > m_rows - 1) {
+		throw OutOfRangeException();
+	}
+	return Proxy(m_ptr + r * (*this).m_columns, (*this).m_columns);
 }

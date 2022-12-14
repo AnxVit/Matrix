@@ -47,8 +47,7 @@ void test_conversion() {
 }
 
 void test_reshape() {
-	linalg::Matrix<int> m = { {1,2,3}, {4,5,6} };
+	linalg::Matrix<double> m(0);
 	std::cout << m;
-	m.reshape(4, 1.5);
-	std::cout << m;
+	//std::cout << m1;
 }
