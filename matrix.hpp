@@ -43,6 +43,7 @@ linalg::Matrix<T>::Matrix(Matrix&& mat) noexcept
 	std::swap(m_ptr, mat.m_ptr);
 	std::swap(m_rows, mat.m_rows);
 	std::swap(m_columns, mat.m_columns);
+	std::swap(m_capacity, mat.m_capacity);
 }
 
 template<typename T>
@@ -60,7 +61,7 @@ linalg::Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T2>> list)
 	T* tmp_ptr = reinterpret_cast<T*>(operator new(sizeof(T) * list.size() * (*list.begin()).size()));
 	T* cur_ptr = tmp_ptr;
 	try {
-		for (std::initializer_list<T> row : list) {
+		for (const std::initializer_list<T2>& row : list) {
 			using list_it = typename std::initializer_list<T2>::iterator;
 			for (list_it it = row.begin(); it != row.end(); ++it, ++cur_ptr) {
 				new(cur_ptr) T(*it);
@@ -196,6 +197,7 @@ linalg::Matrix<T>& linalg::Matrix<T>::operator=(Matrix&& mat) noexcept{
 	std::swap(m_ptr, mat.m_ptr);
 	std::swap(m_rows, mat.m_rows);
 	std::swap(m_columns, mat.m_columns);
+	std::swap(m_capacity, mat.m_capacity);
 	return *this;
 }
 
